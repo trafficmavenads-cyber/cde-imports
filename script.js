@@ -1,10 +1,28 @@
 const WHATSAPP_BASE = 'https://wa.me/message/I73W2OYLCHD3M1';
 const DEFAULT_MSG = 'Olá! Vi o site da CDE Imports e gostaria de receber a tabela atualizada.';
 
+const META_STANDARD_EVENTS = {
+  whatsapp_click: 'Contact',
+  table_request: 'Lead',
+  retail_lead: 'Lead',
+  professional_lead: 'Lead',
+  wholesale_lead: 'Lead',
+  product_interest: 'ViewContent',
+};
+
 function track(name, params = {}) {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: name, ...params });
-  if (typeof fbq === 'function') fbq('trackCustom', name, params);
+
+  if (typeof fbq === 'function') {
+    const metaEvent = META_STANDARD_EVENTS[name];
+    if (metaEvent) {
+      fbq('track', metaEvent, { event_source: name, ...params });
+    } else {
+      fbq('trackCustom', name, params);
+    }
+  }
+
   if (typeof gtag === 'function') gtag('event', name, params);
 }
 
@@ -20,7 +38,6 @@ document.querySelectorAll('.wa').forEach((el) => {
 });
 
 document.getElementById('year').textContent = new Date().getFullYear();
-track('page_view');
 
 const menuBtn = document.querySelector('.menu-btn');
 const mobileMenu = document.querySelector('.mobile-menu');
